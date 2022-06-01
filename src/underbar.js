@@ -246,6 +246,13 @@
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for (var i = 0; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        if (obj[key] === undefined) {
+          obj[key] = arguments[i][key];
+        }
+      }
+    } return obj;
   };
 
 
@@ -280,7 +287,7 @@
     };
   };
 
-  // Memorize an expensive function's results by storing them. You may assume
+  // Memoize an expensive function's results by storing them. You may assume
   // that the function only takes primitives as arguments.
   // memoize could be renamed to oncePerUniqueArgumentList; memoize does the
   // same thing as once, but based on many sets of unique arguments.
@@ -289,6 +296,14 @@
   // already computed the result for the given argument and return that value
   // instead if possible.
   _.memoize = function(func) {
+    var results = {};
+    return function() {
+      var currentArguments = JSON.stringify(arguments);
+      if (!results[currentArguments]) {
+        results[currentArguments] = func.apply(this, arguments);
+      }
+      return results[currentArguments];
+    };
   };
 
   // Delays a function for the given number of milliseconds, and then calls
@@ -298,6 +313,11 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var functionArguments = [];
+    for (var i = 2; i < arguments.length; i++) {
+      functionArguments.push(arguments[i]);
+    }
+    setTimeout(function() { func.apply(this, functionArguments); }, wait);
   };
 
 
@@ -312,6 +332,20 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    //create input array copy
+    var inputCopy = array.slice();
+    //create output array
+    var output = [];
+    //loop through input copy
+    while (inputCopy.length > 0) {
+      //generate random index in input copy
+      var randomIndex = Math.floor(Math.random() * inputCopy.length);
+      //push that index/value to output
+      output.push(inputCopy[randomIndex]);
+      //remove that index/value from input copy
+      inputCopy.splice(randomIndex, 1);
+    }
+    return output;
   };
 
 
@@ -326,6 +360,17 @@
   // Calls the method named by functionOrKey on each value in the list.
   // Note: You will need to learn a bit about .apply to complete this.
   _.invoke = function(collection, functionOrKey, args) {
+    var results = [];
+    if (typeof functionOrKey === 'function') {
+      _.each(collection, function (item) {
+        results.push(functionOrKey.apply(item, args));
+      });
+    } else {
+      _.each(collection, function (item) {
+        results.push(item[functionOrKey](args));
+      });
+    }
+    return results;
   };
 
   // Sort the object's values by a criterion produced by an iterator.
@@ -333,6 +378,9 @@
   // of that string. For example, _.sortBy(people, 'name') should sort
   // an array of people by their name.
   _.sortBy = function(collection, iterator) {
+    var output = [];
+
+    return output;
   };
 
   // Zip together two or more arrays with elements of the same index
